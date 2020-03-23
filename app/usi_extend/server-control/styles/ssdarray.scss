@@ -1,0 +1,68 @@
+// SSD Array
+#ssd-header {
+  text-align: center;
+  margin: auto;
+}
+#ssd-info-header {
+  text-align: center;
+  border-color: #FFFFFF;
+}
+#ssd-info-header tr {
+  text-align: center;
+  height: 85px;
+}
+#ssd-info-header tr td {
+  width: 140px;
+  background: #B088FF;
+  font-size: 1em;
+  border: 2px solid #0000AE;
+  text-align: center;
+}
+#ssd-info-header tr td:hover{
+  background: #FF704D;
+}
+
+#ssd-info-body {
+  text-align: center;
+  border: 2px solid;
+  border-color: #0000FF;
+  margin: auto;
+}
+
+.ssd-info-body-right {
+  position: relative;
+  right: 150px;
+}
+
+.ssd-body-header {
+  text-align: center;
+}
+.ssd-body-header caption {
+  text-align: center;
+}
+.ssd-body-header tr th {
+  font-size: 16px;
+  text-align: center;
+}
+
+.ssd-body-tbody tr {
+  text-align: center;
+}
+.ssd-body-tbody tr td {
+  font-size: 12px;
+  text-align: center;
+}
+
+th , td {
+  text-align: center;
+  font-size: medium;
+  border: 1px solid grey;
+  border-collapse: collapse;
+  padding: 5px;
+}
+ tr:nth-child(odd) {
+  background-color: #f1f1f1;
+}
+ tr:nth-child(even) {
+  background-color: #ffffff;
+}

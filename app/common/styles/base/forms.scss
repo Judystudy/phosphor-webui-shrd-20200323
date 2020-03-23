@@ -1,0 +1,123 @@
+label, legend {
+  font-size:1em;
+  font-weight: 300;
+  margin: 0;
+  .error {
+    font-size: .9em;
+  }
+}
+
+.label__helper-text {
+  color: $text-02;
+  line-height: 1.2;
+  font-size: 0.9em;
+  margin-bottom: 0.4em;
+}
+
+input[type='email'],
+input[type='number'],
+input[type='password'],
+input[type='search'],
+input[type='tel'],
+input[type='url'],
+input[type='text'],
+input[type='date'],
+input[type='time'],
+textarea {
+  border-radius: 0px;
+  border: 1px solid $border-color-02;
+  margin: 0;
+  background: $primary-light;
+  box-shadow: 0 0 0;
+  transition: none !important;
+  max-height: 2.1em;
+  &:focus {
+    border-color: $border-color-01;
+    box-shadow: 0 -3px $primary-accent inset;
+  }
+  &:disabled,
+  .disabled {
+    background: $background-03;
+    border: 1px solid $border-color-02;
+  }
+  &.input__error {
+    box-shadow: 0 -5px $status-error inset;
+    color: $status-error;
+    &:focus {
+      box-shadow: 0 -5px $primary-accent inset;
+    }
+  }
+}
+
+//input validation
+.ng-invalid.ng-touched {
+  box-shadow: 0 -3px $status-error inset;
+  &:focus {
+    border-color: $border-color-01;
+    box-shadow: 0 -3px $status-error inset;
+  }
+}
+.submitted .ng-invalid {
+  box-shadow: 0 -3px $status-error inset;
+  &:focus {
+    border-color: $border-color-01;
+    box-shadow: 0 -3px $status-error inset;
+  }
+}
+
+.form-error {
+  margin-bottom: .7em;
+  font-size: 0.8rem;
+  color: $status-error;
+  height:1rem;
+  display: block;
+  visibility: hidden;
+  .visible {
+    visibility: visible;
+  }
+}
+//Foundation overwrite
+[type=color], [type=date], [type=datetime-local], [type=datetime], [type=email], [type=month], [type=number], [type=password], [type=search], [type=tel], [type=text], [type=time], [type=url], [type=week], textarea {
+  border-color: $border-color-02;
+}
+
+input[readonly],
+input[readonly]:focus{
+  box-shadow: 0 0 0;
+  background: $background-03;
+  border: 1px solid $border-color-02;
+}
+
+textarea { padding: .2em;
+  height: auto;}
+input[type="submit"], .submit {
+  margin: 1em 0;
+  width: 100%;
+}
+
+//Custom select
+select{
+  border-radius: 0px;
+  height: auto;
+  padding-right: 0.5rem; //override inherited Foundation style
+  border-color: $border-color-02;
+  @include fastTransition-all;
+  @include bgImage__arrowDown-primary;
+  &:focus {
+    box-shadow: 0 0 0;
+  }
+  &[disabled] {
+    @include bgImage__arrowDown-disabled;
+  }
+}
+
+#login__form {
+  input {
+    height: 3em;
+    max-height: none;
+  }
+}
+.form__validation-message {
+  color: $status-error;
+  font-size: 0.9em;
+}
