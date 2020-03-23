@@ -59,12 +59,18 @@ window.angular && (function(angular) {
         pollActivationTimer = $interval(function() {
           APIUtils.getActivation(imageId).then(
               function(state) {
-                //@TODO: display an error message if image "Failed"
-                if (((/\.Active$/).test(state.data)) ||
-                    ((/\.Failed$/).test(state.data))) {
+                let imageStateActive = (/\.Active$/).test(state.data);
+                let imageStateFailed = (/\.Failed$/).test(state.data);
+                if (imageStateActive || imageStateFailed) {
                   $interval.cancel(pollActivationTimer);
                   pollActivationTimer = undefined;
+                }
+                if (imageStateActive) {
                   deferred.resolve(state);
+                } else if (imageStateFailed) {
+                  console.log('Image failed to activate: ', imageStateFailed);
+                  toastService.error('Image failed to activate.');
+                  deferred.reject(error);
                 }
               },
               function(error) {
@@ -110,26 +116,14 @@ window.angular && (function(angular) {
                   .then(function(state) {
                     if ($scope.activate.reboot &&
                         ($scope.activate_image_type == 'BMC')) {
-                      // Despite the new image being active, issue,
-                      // https://github.com/openbmc/openbmc/issues/2764, can
-                      // cause a system to brick, if the system reboots before
-                      // the service to set the U-Boot variables is complete.
-                      // Wait 10 seconds before rebooting to ensure this service
-                      // is complete. This issue is fixed in newer images, but
-                      // the user may be updating from an older image that does
-                      // not that have this fix.
-                      // TODO: remove this timeout after sufficient time has
-                      // passed.
-                      $timeout(function() {
-                        APIUtils.bmcReboot().then(
-                            function(response) {
-                              toastService.success('BMC is rebooting.')
-                            },
-                            function(error) {
-                              console.log(JSON.stringify(error));
-                              toastService.error('Unable to reboot BMC.');
-                            });
-                      }, 10000);
+                      APIUtils.bmcReboot().then(
+                          function(response) {
+                            toastService.success('BMC is rebooting.')
+                          },
+                          function(error) {
+                            console.log(JSON.stringify(error));
+                            toastService.error('Unable to reboot BMC.');
+                          });
                     }
                     if ($scope.activate.reboot &&
                         ($scope.activate_image_type == 'Host')) {

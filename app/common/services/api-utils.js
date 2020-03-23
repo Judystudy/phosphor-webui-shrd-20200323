@@ -530,22 +530,17 @@ window.angular && (function(angular) {
                        '/redfish/v1/AccountService/Roles',
                    withCredentials: true
                  })
-              .then(
-                  function(response) {
-                    var members = response.data['Members'];
-                    angular.forEach(members, function(member) {
-                      roles.push(member['@odata.id'].split('/').pop());
-                    });
-                    return roles;
-                  },
-                  function(error) {
-                    console.log(error);
-                  });
+              .then(function(response) {
+                var members = response.data['Members'];
+                angular.forEach(members, function(member) {
+                  roles.push(member['@odata.id'].split('/').pop());
+                });
+                return roles;
+              });
         },
         getAllUserAccounts: function() {
           var deferred = $q.defer();
           var promises = [];
-          var users = [];
 
           $http({
             method: 'GET',
@@ -581,19 +576,15 @@ window.angular && (function(angular) {
           return deferred.promise;
         },
 
-        getAllUserAccountProperties: function(callback) {
+        getAllUserAccountProperties: function() {
           return $http({
                    method: 'GET',
                    url: DataService.getHost() + '/redfish/v1/AccountService',
                    withCredentials: true
                  })
-              .then(
-                  function(response) {
-                    return response.data;
-                  },
-                  function(error) {
-                    console.log(error);
-                  });
+              .then(function(response) {
+                return response.data;
+              });
         },
 
         saveUserAccountProperties: function(lockoutduration, lockoutthreshold) {
@@ -613,6 +604,14 @@ window.angular && (function(angular) {
           });
         },
 
+        saveLdapProperties: function(properties) {
+          return $http({
+            method: 'PATCH',
+            url: DataService.getHost() + '/redfish/v1/AccountService',
+            withCredentials: true,
+            data: properties
+          });
+        },
         createUser: function(user, passwd, role, enabled) {
           var data = {};
           data['UserName'] = user;
@@ -627,7 +626,7 @@ window.angular && (function(angular) {
             data: data
           });
         },
-        updateUser: function(user, newUser, passwd, role, enabled) {
+        updateUser: function(user, newUser, passwd, role, enabled, locked) {
           var data = {};
           if ((newUser !== undefined) && (newUser != null)) {
             data['UserName'] = newUser;
@@ -640,6 +639,9 @@ window.angular && (function(angular) {
           }
           if ((passwd !== undefined) && (passwd != null)) {
             data['Password'] = passwd;
+          }
+          if ((locked !== undefined) && (locked !== null)) {
+            data['Locked'] = locked
           }
           return $http({
             method: 'PATCH',
@@ -688,6 +690,45 @@ window.angular && (function(angular) {
             data: JSON.stringify({'data': state})
           })
         },
+        getBootOptions: function() {
+          return $http({
+                   method: 'GET',
+                   url: DataService.getHost() + '/redfish/v1/Systems/system',
+                   withCredentials: true
+                 })
+              .then(function(response) {
+                return response.data;
+              });
+        },
+        saveBootSettings: function(data) {
+          return $http({
+            method: 'PATCH',
+            url: DataService.getHost() + '/redfish/v1/Systems/system',
+            withCredentials: true,
+            data: data
+          });
+        },
+        getTPMStatus: function() {
+          return $http({
+                   method: 'GET',
+                   url: DataService.getHost() +
+                       '/xyz/openbmc_project/control/host0/TPMEnable',
+                   withCredentials: true
+                 })
+              .then(function(response) {
+                return response.data;
+              });
+        },
+        saveTPMEnable: function(data) {
+          return $http({
+            method: 'PUT',
+            url: DataService.getHost() +
+                '/xyz/openbmc_project/control/host0/TPMEnable/attr/TPMEnable',
+            withCredentials: true,
+            data: JSON.stringify({'data': data})
+          })
+        },
+
         bmcReboot: function() {
           return $http({
             method: 'PUT',
@@ -822,10 +863,13 @@ window.angular && (function(angular) {
                             Constants.SEVERITY_TO_PRIORITY_MAP[severityCode];
                         severityFlags[priority.toLowerCase()] = true;
                         relatedItems = [];
-                        content.data[key].associations.forEach(function(item) {
-                          relatedItems.push(item[2]);
-                        });
-
+                        if (content.data[key].hasOwnProperty(
+                                ['Associations'])) {
+                          content.data[key].Associations.forEach(function(
+                              item) {
+                            relatedItems.push(item[2]);
+                          });
+                        }
                         if (content.data[key].hasOwnProperty(['EventID'])) {
                           eventID = content.data[key].EventID;
                         }
@@ -845,18 +889,12 @@ window.angular && (function(angular) {
                                   content.data[key].AdditionalData.join('\n'),
                               type: content.data[key].Message,
                               selected: false,
-                              search_text:
-                                  ('#' + content.data[key].Id + ' ' +
-                                   severityCode + ' ' +
-                                   content.data[key].Message + ' ' +
-                                   content.data[key].Severity + ' ' +
-                                   content.data[key].AdditionalData.join(' '))
-                                      .toLowerCase(),
                               meta: false,
                               confirm: false,
                               related_items: relatedItems,
                               eventID: eventID,
                               description: description,
+                              logId: '#' + content.data[key].Id,
                               data: {key: key, value: content.data[key]}
                             },
                             content.data[key]));
@@ -1370,6 +1408,18 @@ window.angular && (function(angular) {
                 return response.data;
               });
         },
+        createCSRCertificate: function(data) {
+          return $http({
+                   method: 'POST',
+                   url: DataService.getHost() +
+                       '/redfish/v1/CertificateService/Actions/CertificateService.GenerateCSR',
+                   withCredentials: true,
+                   data: data
+                 })
+              .then(function(response) {
+                return response.data['CSRString'];
+              });
+        },
         replaceCertificate: function(data) {
           return $http({
                    method: 'POST',
@@ -1377,6 +1427,16 @@ window.angular && (function(angular) {
                        '/redfish/v1/CertificateService/Actions/CertificateService.ReplaceCertificate',
                    withCredentials: true,
                    data: data
+                 })
+              .then(function(response) {
+                return response.data;
+              });
+        },
+        deleteRedfishObject: function(objectPath) {
+          return $http({
+                   method: 'DELETE',
+                   url: DataService.getHost() + objectPath,
+                   withCredentials: true
                  })
               .then(function(response) {
                 return response.data;
@@ -1463,7 +1523,7 @@ window.angular && (function(angular) {
                 // that the mapper created on the inventory panel.
                 // Example: An association from the BMC inventory item to the
                 // BMC firmware images. See:
-                // https://github.com/openbmc/docs/blob/master/object-mapper.md#associations
+                // https://github.com/openbmc/docs/blob/master/architecture/object-mapper.md#associations
                 if (content.data[key].hasOwnProperty('endpoints')) {
                   continue;
                 }
@@ -1478,12 +1538,14 @@ window.angular && (function(angular) {
                   delete content.data[key].Associations;
                 }
 
-                // Support old Associations interface property
-                // https://github.com/openbmc/phosphor-logging/blob/master/org/openbmc/Associations.interface.yaml
-                // Remove when we move to new Associations interface
-                // openbmc/openbmc#3584
-                if (content.data[key].hasOwnProperty('associations')) {
-                  delete content.data[key].associations;
+                // Remove the Purpose property from any inventory item.
+                // The purpose property isn't useful to a user.
+                // E.g. in a Power Supply:
+                // Purpose
+                // xyz.openbmc_project.Software.Version.VersionPurpose.Other
+                // Remove when we move inventory to Redfish
+                if (content.data[key].hasOwnProperty('Purpose')) {
+                  delete content.data[key].Purpose;
                 }
 
                 data = camelcaseToLabel(content.data[key]);

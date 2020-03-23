@@ -12,7 +12,9 @@
       <label for="content__search-input">Sensors Search</label>
       <input id="content__search-input" type="text" ng-model="customSearch" ng-keydown="doSearchOnEnter($event)"/>
       <div class="search-submit__wrapper">
-        <button class="clear-input" ng-click="clear()">&#10005;</button>
+        <button class="btn" type="button" aria-label="clear filter" ng-click="clear()">
+            <icon file="icon-close.svg" aria-hidden="true"></icon>
+        </button>
         <input id="content__search-submit" type="submit" class="btn btn-primary content__search-submit" value="Filter" ng-click="doSearchOnClick()"/>
       </div>
     </div>
@@ -55,7 +57,10 @@
     <tbody class="sensors__tbody">
       <tr class="sensors__tbody-row" ng-repeat="sensor in data|filter:filterBySeverity|filter:filterBySearchTerms|orderBy:'+custom_order' as filteredSensorData">
         <th class="sensors__tbody-header">
-          <span class="icon" ng-class="{'icon__critical': sensor.status == 'critical', 'icon__warning': sensor.status == 'warning', 'icon__normal': sensor.status == 'normal'}" aria-label="Sensor status: {{sensor.status}}" ></span>
+          <status-icon status="{{ sensor.status == 'critical' ? 'error' :
+                                  sensor.status == 'warning' ? 'warn' : null }}"
+                       aria-label="Sensor status: {{sensor.status}}">
+          </status-icon>
           <span>{{sensor.title}}</span>
         </th>
         <td class="sensors__tbody-cell">

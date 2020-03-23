@@ -35,18 +35,6 @@ window.angular && (function(angular) {
                 'controller': 'snmpController',
                 authenticated: true
               })
-              .when('/configuration/virtual-media', {
-                'template':
-                    require('./controllers/virtual-media-controller.html'),
-                'controller': 'virtualMediaController',
-                authenticated: true
-              })
-              .when('/configuration/certificate', {
-                'template':
-                    require('./controllers/certificate-controller.html'),
-                'controller': 'certificateController',
-                authenticated: true
-              })
               .when('/configuration/firmware', {
                 'template': require('./controllers/firmware-controller.html'),
                 'controller': 'firmwareController',
@@ -56,7 +44,7 @@ window.angular && (function(angular) {
                 'template': require('../usi_extend/configuration/controllers/switch-firmware-controller.html'),
                 'controller': 'switchFirmwareController',
                 authenticated: true
-              });
+              }); // Judy modify 20190708   /configuration/switch-firmware
         }
       ]);
 })(window.angular);

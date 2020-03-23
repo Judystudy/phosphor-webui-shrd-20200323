@@ -105,7 +105,8 @@ window.angular && (function(angular) {
               $scope.loading = false;
               return;
             }
-            if (!APIUtils.validIPV4IP(
+            if ($scope.interface.ipv4.values[i].Gateway &&
+                !APIUtils.validIPV4IP(
                     $scope.interface.ipv4.values[i].Gateway)) {
               toastService.error(
                   $scope.interface.ipv4.values[i].Address +
@@ -210,11 +211,6 @@ window.angular && (function(angular) {
       }
 
       function setNameservers() {
-        // Nameservers does not allow an empty array, since we remove all empty
-        // strings above, could have an empty array. TODO: openbmc/openbmc#3240
-        if ($scope.interface.Nameservers.length == 0) {
-          $scope.interface.Nameservers.push('');
-        }
         return APIUtils
             .setNameservers(
                 $scope.selectedInterface, $scope.interface.Nameservers)
